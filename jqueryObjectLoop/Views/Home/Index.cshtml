@@ -1,0 +1,57 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+
+    var urlgetJson = '@Url.Action("getBroker", "Home")';
+    var rowObject = {};
+
+    $.ajax({
+        url: urlgetJson,
+        dataType: 'json',
+        success: function (data) {
+            console.log(data);
+            navigateHierarchyObject(data);
+            if (!jQuery.isEmptyObject(rowObject))
+                populateTableRow(rowObject);
+        },
+        type: 'GET'
+    });
+
+    function navigateHierarchyObject(data) {
+        $.each(data, function (key, value) {
+            if ($.isArray(value)) {
+                $.each(value, function (arrayKey, arrayValue) {
+                    if ($.isPlainObject(arrayValue))
+                        navigateHierarchyObject(arrayValue);
+                });
+            } else {
+                createTableRowObject(key, value);
+            }
+
+            if ($.isPlainObject(value))
+                navigateHierarchyObject(value);
+        });
+    }
+ 
+   
+    function createTableRowObject(key, value) {
+        if (!rowObject.hasOwnProperty(key))
+            rowObject[key] = value;
+        else {
+            //  property already exist, ready to populate table row
+            populateTableRow(rowObject);
+            // reset the global object
+            rowObject = {};
+            // set value to new object
+            rowObject[key] = value;
+
+        }
+    }
+
+    function populateTableRow(rowObject) {
+        console.log(rowObject);
+    }
+
+</script>
